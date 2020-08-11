@@ -1,2 +1,2 @@
 # asyncpubsub
-Simple Publisher-Subscriber implementation with asyncio
+A Simple Publisher-Subscriber message-exchange implementation in python with asyncio
