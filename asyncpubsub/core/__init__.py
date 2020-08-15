@@ -10,14 +10,18 @@ class EType(Enum):
     ANY = auto()
 
 
-class Registerable:
+class ChannelRegisterable:
 
-    def __init__(self, name, etype):
+    def __init__(self, name, channel_name, etype):
         if not (name and isinstance(name, str)):
             raise TypeError("arg name must be a valid non-empty string")
+        if not (channel_name and isinstance(channel_name, str)):
+            raise TypeError("arg channel_name must be a valid non-empty string")
         if not isinstance(etype, EType):
             raise TypeError('arg etype must be of type EType')
+
         self._name = name
+        self._channel_name = channel_name
         self._etype = etype
 
     @property
