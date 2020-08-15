@@ -4,6 +4,7 @@ import asyncio
 
 from asyncpubsub.core.hub import get_hub, Hub, RegistrationError, Registerable, EType
 from asyncpubsub.core.publisher import Publisher
+from asyncpubsub.core.subscriber import Subscriber
 
 _SHOW_LOG = True
 
@@ -34,4 +35,4 @@ def spin(loop=None):
         loop.close()
 
 
-__all__ = ["RegistrationError", "Registerable", "get_hub", "Hub", "Publisher", "spin", "EType"]
+__all__ = ["RegistrationError", "Registerable", "get_hub", "Hub", "spin", "EType", "Publisher", "Subscriber"]
