@@ -12,8 +12,11 @@ class EType(Enum):
 class Registerable:
 
     def __init__(self, name, etype):
+        if not (name and isinstance(name, str)):
+            raise TypeError("arg name must be a valid non-empty string")
+        if not isinstance(etype, EType):
+            raise TypeError('arg etype must be of type EType')
         self._name = name
-        assert isinstance(etype, EType)
         self._etype = etype
 
     @property
