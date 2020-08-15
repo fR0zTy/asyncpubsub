@@ -4,9 +4,9 @@ from enum import Enum, auto
 
 
 class EType(Enum):
-    ALL = auto()
     PUBLISHER = auto()
     SUBSCRIBER = auto()
+    ANY = auto()
 
 
 class Registerable:
@@ -28,7 +28,7 @@ class Registerable:
         return self._etype
 
     def __eq__(self, other):
-        return self.etype == other.etype and self.name == self.other.name
+        return self.etype == other.etype and self.name == other.name
 
     def __hash__(self):
         return hash((self.etype, self.name))
