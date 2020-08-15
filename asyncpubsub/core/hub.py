@@ -1,7 +1,7 @@
 # -*- coding : utf-8 -*-
 
-import asyncio
 import logging
+from typing import Dict, Tuple, Set
 
 from asyncpubsub.core import Registerable, EType
 
@@ -19,12 +19,18 @@ class RegistrationError(Exception):
     pass
 
 
-class Hub():
+class Hub:
+
+    """
+    An instance of this class is meant to be the central naming service which provides lookups
+    for publishers and subscribers facilitating communication between them.
+    Please note, The asyncpubsub package assumes that a singleton pattern will be followed for this
+    class.
+    """
 
     def __init__(self):
-        self.loop = asyncio.get_event_loop()
-        self._registered = {}
-        self._publisher_subscriber_map = {}
+        self._registered: Dict[Tuple[EType, str], Registerable] = {}
+        self._publisher_subscriber_map: Dict[Registerable, Set[Registerable]] = {}
         self._dangling_subscribers = set()
 
     @property
@@ -32,6 +38,17 @@ class Hub():
         return logging.getLogger('asyncpubsub.hub')
 
     def register(self, registerable):
+        """
+        Method for registering an instance of Registerable with the Hub.
+
+        :param Registerable registerable: instance to be registered
+
+        .. note:: Only registered entities with allow a proper publish/subscribe functionality
+                  For provided classes like Publisher and Subscriber this will be done automatically
+                  during instantiation. However, if one wishes to write their own Registerable then
+                  registration has to be performed for those instances,
+
+        """
         if not isinstance(registerable, Registerable):
             raise TypeError("arg registerable must be of type Registerable")
 
@@ -65,3 +82,14 @@ class Hub():
 
         else:
             raise ValueError(f"Invalid registerable of type {registerable.__class__}")
+
+    def get_registered(self, etype=EType.ALL):
+        """
+        Method returns registered subscribers
+
+        :param EType etype: EType used for filtering the registerables
+        """
+        if etype == EType.ALL:
+            return list(self._registered.values())
+        else:
+            return [r for r in self._registered if r.etype == etype]
