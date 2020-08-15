@@ -156,3 +156,12 @@ class Hub:
         self._publisher_subscriber_map.clear()
         self._dangling_subscribers.clear()
         self.logger.warning(f"{self.__class__.__name__} reset")
+
+    def get_publishers(self):
+        return self.get_registered(etype=EType.PUBLISHER)
+
+    def get_subscribers(self, publisher=None):
+        if publisher is not None:
+            return self._publisher_subscriber_map.get(publisher, set())
+        else:
+            return self.get_registered(etype=EType.SUBSCRIBER)
