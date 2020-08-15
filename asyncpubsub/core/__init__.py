@@ -1,5 +1,6 @@
 # -*- coding : utf-8 -*-
 
+import logging
 from enum import Enum, auto
 
 
@@ -18,6 +19,10 @@ class Registerable:
             raise TypeError('arg etype must be of type EType')
         self._name = name
         self._etype = etype
+
+    @property
+    def logger(self):
+        return logging.getLogger(f"asyncpubsub.{self.__class__.__name__}.{self._name}")
 
     @property
     def name(self):
