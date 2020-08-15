@@ -2,8 +2,22 @@
 
 import asyncio
 
-from asyncpubsub.core.hub import get_hub, Hub, RegistrationError, Registerable
+from asyncpubsub.core.hub import get_hub, Hub, RegistrationError, Registerable, EType
 from asyncpubsub.core.publisher import Publisher
+
+_SHOW_LOG = True
+
+if _SHOW_LOG:
+    import logging
+    import sys
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
 
 
 def spin(loop=None):
@@ -20,4 +34,4 @@ def spin(loop=None):
         loop.close()
 
 
-__all__ = ["RegistrationError", "Registerable", "get_hub", "Hub", "Publisher", "spin"]
+__all__ = ["RegistrationError", "Registerable", "get_hub", "Hub", "Publisher", "spin", "EType"]
