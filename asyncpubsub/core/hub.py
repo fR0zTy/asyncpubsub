@@ -54,9 +54,14 @@ class Hub:
 
         key = self.__gen_key(registerable)
 
-        if key in self._registered:
-            raise RegistrationError((f"{registerable.__class__.__name__} with name {registerable.name} "
-                                     f" and etype {registerable.etype} already exists!"))
+        registered = self._registered.get(key, None)
+        if registered is not None:
+            if registered is registerable:
+                # Same object multiple register calls
+                return
+            else:
+                raise RegistrationError((f"{registerable.__class__.__name__} with name {registerable.name} "
+                                         f" and etype {registerable.etype} already exists!"))
 
         self._registered[key] = registerable
         self.logger.debug(f"registered object of type {registerable.__class__.__name__} with key {key}")
