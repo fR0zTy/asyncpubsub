@@ -83,13 +83,22 @@ class Hub:
         else:
             raise ValueError(f"Invalid registerable of type {registerable.__class__}")
 
-    def get_registered(self, etype=EType.ALL):
+    def get_registered(self, etype=None):
         """
         Method returns registered subscribers
 
-        :param EType etype: EType used for filtering the registerables
+        :param Optional[EType] etype: EType used for filtering the registerables if None then
+                                      all registered entities will be returned
         """
-        if etype == EType.ALL:
+        if etype is None:
             return list(self._registered.values())
         else:
             return [r for r in self._registered if r.etype == etype]
+
+    def is_registered(self, registerable):
+        """
+        Method returns if a given registerable is registered with the hub
+
+        :param Registerable registerable: instance to check for registration
+        """
+        return bool(self._registered.get((registerable.etype, registerable.name)))
