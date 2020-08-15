@@ -4,6 +4,7 @@ from enum import Enum, auto
 
 
 class EType(Enum):
+    ALL = auto()
     PUBLISHER = auto()
     SUBSCRIBER = auto()
 
