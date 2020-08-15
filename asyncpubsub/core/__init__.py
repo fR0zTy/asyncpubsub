@@ -1,21 +1,30 @@
 # -*- coding : utf-8 -*-
 
-from hub import Hub, get_hub
-from publisher import Publisher
+from enum import Enum, auto
 
-__all__ = ['Hub', 'Publisher', 'get_hub']
+
+class EType(Enum):
+    PUBLISHER = auto()
+    SUBSCRIBER = auto()
 
 
 class Registerable:
 
-    def __init__(self, name, msg_type):
+    def __init__(self, name, etype):
         self._name = name
-        self._msg_type = msg_type
+        assert isinstance(etype, EType)
+        self._etype = etype
 
     @property
     def name(self):
         return self._name
 
     @property
-    def msg_type(self):
-        return self._msg_type
+    def etype(self):
+        return self._etype
+
+    def __eq__(self, other):
+        return self.etype == other.etype and self.name == self.other.name
+
+    def __hash__(self):
+        return hash((self.etype, self.name))
