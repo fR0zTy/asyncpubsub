@@ -10,58 +10,55 @@ class DummyPublisher(Registerable):
 
 class TestHub(unittest.TestCase):
 
+    def setUp(self):
+        self.hub = get_hub()
+        self.reg_obj = Registerable("d1", EType.ANY)
+        self.publisher = DummyPublisher("pub1")
+
     def test_get_hub_returns_singleton(self):
-        hub = get_hub()
-        self.assertIs(hub, get_hub())
+        self.assertIs(self.hub, get_hub())
 
     def test_registration(self):
-        hub = get_hub()
-        d1 = Registerable("d1", EType.ANY)
-        hub.register(d1)
-        self.assertTrue(hub.is_registered(d1))
-
-    def test_deregistration(self):
-        hub = get_hub()
-        d1 = Registerable("d1", EType.ANY)
-        hub.register(d1)
-        self.assertTrue(hub.is_registered(d1))
-        hub.deregister(d1)
-        self.assertFalse(hub.is_registered(d1))
+        self.hub.register(self.reg_obj)
+        self.assertTrue(self.hub.is_registered(self.reg_obj))
 
     def test_is_registered(self):
-        hub = get_hub()
-        d1 = Registerable("d1", EType.ANY)
-        self.assertFalse(hub.is_registered(d1))
-        hub.register(d1)
-        self.assertTrue(hub.is_registered(d1))
+        self.assertFalse(self.hub.is_registered(self.reg_obj))
+        self.hub.register(self.reg_obj)
+        self.assertTrue(self.hub.is_registered(self.reg_obj))
+
+    def test_multiple_registration_same_object(self):
+        self.hub.register(self.reg_obj)
+        self.hub.register(self.reg_obj)
+        self.assertTrue(self.hub.is_registered(self.reg_obj))
+
+    def test_deregistration(self):
+        self.hub.register(self.reg_obj)
+        self.assertTrue(self.hub.is_registered(self.reg_obj))
+        self.hub.deregister(self.reg_obj)
+        self.assertFalse(self.hub.is_registered(self.reg_obj))
 
     def test_get_registered(self):
-        hub = get_hub()
-        d1 = Registerable("d1", EType.ANY)
-        d2 = Registerable("d2", EType.ANY)
-        self.assertFalse(any(r in [d1, d2] for r in hub.get_registered()))
-        hub.register(d1)
-        hub.register(d2)
-        self.assertTrue(all(r in [d1, d2] for r in hub.get_registered()))
+        reg_obj_2 = Registerable("d2", EType.ANY)
+        self.assertFalse(any(r in self.hub.get_registered() for r in [self.reg_obj, reg_obj_2]))
+        self.hub.register(self.reg_obj)
+        self.hub.register(reg_obj_2)
+        self.assertTrue(all(r in self.hub.get_registered() for r in [self.reg_obj, reg_obj_2]))
 
     def test_publisher_registration(self):
-        hub = get_hub()
-        publisher = DummyPublisher("pub1")
-        self.assertTrue(hub.is_registered(publisher))
-        self.assertTrue(publisher in hub._publisher_subscriber_map)
-        self.assertTrue(publisher in hub.get_registered(etype=EType.PUBLISHER))
+        self.assertTrue(self.hub.is_registered(self.publisher))
+        self.assertTrue(self.publisher in self.hub._publisher_subscriber_map)
+        self.assertTrue(self.publisher in self.hub.get_registered(etype=EType.PUBLISHER))
 
     def test_publisher_deregistration(self):
-        hub = get_hub()
-        publisher = DummyPublisher("pub1")
-        self.assertTrue(hub.is_registered(publisher))
-        hub.deregister(publisher)
-        self.assertFalse(hub.is_registered(publisher))
-        self.assertFalse(publisher in hub._publisher_subscriber_map)
-        self.assertFalse(publisher in hub.get_registered(etype=EType.PUBLISHER))
+        self.assertTrue(self.hub.is_registered(self.publisher))
+        self.hub.deregister(self.publisher)
+        self.assertFalse(self.hub.is_registered(self.publisher))
+        self.assertFalse(self.publisher in self.hub._publisher_subscriber_map)
+        self.assertFalse(self.publisher in self.hub.get_registered(etype=EType.PUBLISHER))
 
     def test_subscriber_registration(self):
         pass
 
     def tearDown(self):
-        get_hub().reset()
+        self.hub.reset()
