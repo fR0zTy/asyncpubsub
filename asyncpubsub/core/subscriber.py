@@ -10,3 +10,6 @@ class Subscriber(Registerable):
         super().__init__(name, EType.SUBSCRIBER)
         self._hub = get_hub()
         self._hub.register(self)
+
+    def __del__(self):
+        self._hub.deregister(self)

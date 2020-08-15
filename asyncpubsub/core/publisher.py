@@ -14,6 +14,5 @@ class Publisher(Registerable):
         self._hub = get_hub()
         self._hub.register(self)
 
-    @property
-    def is_registered(self):
-        return self._hub.is_registered(self)
+    def __del__(self):
+        self._hub.deregister(self)
