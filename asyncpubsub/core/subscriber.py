@@ -1,10 +1,10 @@
 # -*- coding : utf-8 -*-
 
-from asyncpubsub.core import EType, ChannelRegisterable
+from asyncpubsub.core import EType, ChannelRegistrable
 from asyncpubsub.core.hub import get_hub
 
 
-class Subscriber(ChannelRegisterable):
+class Subscriber(ChannelRegistrable):
 
     def __init__(self, channel_name):
         super().__init__(channel_name, EType.SUBSCRIBER)

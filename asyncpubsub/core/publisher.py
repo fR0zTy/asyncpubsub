@@ -2,11 +2,11 @@
 
 import asyncio
 
-from asyncpubsub.core import EType, ChannelRegisterable
+from asyncpubsub.core import EType, ChannelRegistrable
 from asyncpubsub.core.hub import get_hub
 
 
-class Publisher(ChannelRegisterable):
+class Publisher(ChannelRegistrable):
 
     def __init__(self, channel_name, queue_size=0):
         super().__init__(channel_name, EType.PUBLISHER)

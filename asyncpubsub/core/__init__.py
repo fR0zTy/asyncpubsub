@@ -10,7 +10,7 @@ class EType(IntFlag):
     ANY = PUBLISHER | SUBSCRIBER
 
 
-class ChannelRegisterable:
+class ChannelRegistrable:
 
     def __init__(self, channel_name, etype):
         if not (channel_name and isinstance(channel_name, str)):
