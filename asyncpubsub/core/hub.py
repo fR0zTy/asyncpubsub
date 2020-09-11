@@ -74,16 +74,16 @@ class Hub:
 
         if channel_registrable.etype == EType.PUBLISHER:
 
+            if channel_registrable in self._publisher_subscriber_map:
+                self.logger.debug(f"{channel_registrable} already registered, skipping registration!")
+                return
+
             # Only allow 1 publisher to publish on a given channel
             same_name_publishers = self.get_registered(channel_name=channel_registrable.channel_name,
                                                        etype=EType.PUBLISHER)
             if same_name_publishers:
                 raise RegistrationError((f"{channel_registrable.__class__.__name__} with channel_name "
                                          f"{channel_registrable.channel_name} already exists!"))
-
-            if channel_registrable in self._publisher_subscriber_map:
-                self.logger.debug(f"{channel_registrable} already registered, skipping registration!")
-                return
 
             self._publisher_subscriber_map[channel_registrable] = set()
 
