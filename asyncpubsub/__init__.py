@@ -30,7 +30,7 @@ def spin(loop=None):
         tasks = asyncio.all_tasks()
         for task in tasks:
             task.cancel()
-        loop.run_until_complete(tasks)
+        loop.run_until_complete(asyncio.gather(*tasks))
     finally:
         loop.close()
 
