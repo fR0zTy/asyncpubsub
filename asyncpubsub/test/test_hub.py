@@ -5,7 +5,11 @@ from asyncpubsub import get_hub, ChannelRegistrable, EType
 class DummyPublisher(ChannelRegistrable):
     def __init__(self, channel_name):
         super().__init__(channel_name, EType.PUBLISHER)
-        get_hub().register(self)
+
+
+class DummySubscriber(ChannelRegistrable):
+    def __init__(self, channel_name):
+        super().__init__(channel_name, EType.SUBSCRIBER)
 
 
 class TestHub(unittest.TestCase):
@@ -13,7 +17,6 @@ class TestHub(unittest.TestCase):
     def setUp(self):
         self.hub = get_hub()
         self.reg_obj = ChannelRegistrable("d1", EType.ANY)
-        self.publisher = DummyPublisher("pub1")
 
     def test_get_hub_returns_singleton(self):
         self.assertIs(self.hub, get_hub())
@@ -47,19 +50,46 @@ class TestHub(unittest.TestCase):
         self.assertTrue(all(r in self.hub.get_registered() for r in [self.reg_obj, reg_obj_2]))
 
     def test_publisher_registration(self):
-        self.assertTrue(self.hub.is_registered(self.publisher))
-        self.assertTrue(self.publisher in self.hub._publisher_subscriber_map)
-        self.assertTrue(self.publisher in self.hub.get_registered(etype=EType.PUBLISHER))
+        publisher = DummyPublisher("int-channel")
+        self.assertFalse(self.hub.is_registered(publisher))
+        self.hub.register(publisher)
+        self.assertTrue(self.hub.is_registered(publisher))
+        self.assertTrue(publisher in self.hub._publisher_subscriber_map)
+        self.assertTrue(publisher in self.hub.get_registered(etype=EType.PUBLISHER))
 
     def test_publisher_deregistration(self):
-        self.assertTrue(self.hub.is_registered(self.publisher))
-        self.hub.deregister(self.publisher)
-        self.assertFalse(self.hub.is_registered(self.publisher))
-        self.assertFalse(self.publisher in self.hub._publisher_subscriber_map)
-        self.assertFalse(self.publisher in self.hub.get_registered(etype=EType.PUBLISHER))
+        publisher = DummyPublisher("int-channel")
+        self.hub.register(publisher)
+        self.assertTrue(self.hub.is_registered(publisher))
+        self.hub.deregister(publisher)
+        self.assertFalse(self.hub.is_registered(publisher))
+        self.assertFalse(publisher in self.hub._publisher_subscriber_map)
+        self.assertFalse(publisher in self.hub.get_registered(etype=EType.PUBLISHER))
 
-    def test_subscriber_registration(self):
-        pass
+    def test_subscriber_registers_as_dangling_without_publisher(self):
+        subscriber = DummySubscriber('int-channel')
+        self.assertFalse(self.hub.is_registered(subscriber))
+        self.hub.register(subscriber)
+        self.assertTrue(self.hub.is_registered(subscriber))
+        self.assertTrue(subscriber in self.hub._dangling_subscribers)
+
+    def test_subscriber_registers_as_mapped_with_publisher(self):
+        publisher = DummyPublisher("int-channel")
+        subscriber = DummySubscriber("int-channel")
+        self.hub.register(publisher)
+        self.hub.register(subscriber)
+        self.assertTrue(self.hub.is_mapped_channel_registrable(subscriber))
+        self.assertTrue(subscriber not in self.hub._dangling_subscribers)
+
+    def test_subscriber_is_auto_mapped_from_dangling_state(self):
+        publisher = DummyPublisher("int-channel")
+        subscriber = DummySubscriber("int-channel")
+        self.hub.register(subscriber)
+        self.assertTrue(subscriber in self.hub._dangling_subscribers)
+        self.assertFalse(self.hub.is_mapped_channel_registrable(subscriber))
+        self.hub.register(publisher)
+        self.assertFalse(subscriber in self.hub._dangling_subscribers)
+        self.assertTrue(self.hub.is_mapped_channel_registrable(subscriber))
 
     def tearDown(self):
         self.hub.reset()
