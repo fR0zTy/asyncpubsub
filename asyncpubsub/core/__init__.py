@@ -1,13 +1,13 @@
 # -*- coding : utf-8 -*-
 
 import logging
-from enum import Enum, auto
+from enum import IntFlag
 
 
-class EType(Enum):
-    PUBLISHER = auto()
-    SUBSCRIBER = auto()
-    ANY = auto()
+class EType(IntFlag):
+    PUBLISHER = 1
+    SUBSCRIBER = 2
+    ANY = PUBLISHER | SUBSCRIBER
 
 
 class ChannelRegisterable:
