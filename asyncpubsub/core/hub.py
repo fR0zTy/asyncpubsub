@@ -31,15 +31,16 @@ class Hub:
 
     def __init__(self):
         self._publisher_subscriber_map: Dict[ChannelRegistrable, Set[ChannelRegistrable]] = {}
-        self._dangling_subscribers = set()
+        self._dangling_subscribers: Set[ChannelRegistrable] = set()
+        self._unknown_registered: Set[ChannelRegistrable] = set()
 
     @property
     def logger(self):
         return logging.getLogger('asyncpubsub.hub')
 
     def iter_registered(self):
-        return chain(self._publisher_subscriber_map.keys(),
-                     *self._publisher_subscriber_map.values())
+        return chain(self._publisher_subscriber_map.keys(), *self._publisher_subscriber_map.values(),
+                     self._dangling_subscribers, self._unknown_registered)
 
     def get_registered(self, channel_name="", etype=EType.ANY):
         """
@@ -59,7 +60,7 @@ class Hub:
 
     def register(self, channel_registrable):
         """
-        Method for registering an instanc0e of ChannelRegistrable with the Hub.
+        Method for registering an instance of ChannelRegistrable with the Hub.
 
         :param ChannelRegistrable registrable: instance to be registered
 
@@ -122,6 +123,12 @@ class Hub:
                 self._dangling_subscribers.add(channel_registrable)
                 self.logger.debug(f"added subscriber {channel_registrable} into dangling subscribers")
 
+        else:
+            if channel_registrable in self._unknown_registered:
+                self.logger.debug(f"{channel_registrable} already registered, skipping registration!")
+            else:
+                self._unknown_registered.add(channel_registrable)
+
         self.logger.debug(f"registered object of type {channel_registrable.__class__.__name__}")
 
     def deregister(self, channel_registrable):
@@ -153,6 +160,8 @@ class Hub:
             if found:
                 self._publisher_subscriber_map[publisher].remove(subscriber)
                 self.logger.debug(f"removed subscriber for {publisher}")
+        else:
+            self._unknown_registered.discard(channel_registrable)
 
         self.logger.debug(f"deregistered {channel_registrable}")
 
@@ -176,6 +185,7 @@ class Hub:
         """
         self._publisher_subscriber_map.clear()
         self._dangling_subscribers.clear()
+        self._unknown_registered.clear()
         self.logger.warning(f"{self.__class__.__name__} reset")
 
     def get_publishers(self):

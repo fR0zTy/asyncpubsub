@@ -23,7 +23,7 @@ class ChannelRegistrable:
 
     @property
     def logger(self):
-        return logging.getLogger(f"asyncpubsub.{self.__class__.__name__}.{self._name}")
+        return logging.getLogger(f"asyncpubsub.{self.__class__.__name__}.{self._channel_name}")
 
     @property
     def channel_name(self):
@@ -34,7 +34,7 @@ class ChannelRegistrable:
         return self._etype
 
     def __str__(self):
-        return f"{self.__class__.__name__}(name={self._name}, etype={self._etype})"
+        return f"{self.__class__.__name__}(name={self._channel_name}, etype={self._etype})"
 
     def __repr__(self):
         return self.__str__()
