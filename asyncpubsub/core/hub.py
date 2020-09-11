@@ -42,18 +42,21 @@ class Hub:
         return chain(self._publisher_subscriber_map.keys(), *self._publisher_subscriber_map.values(),
                      self._dangling_subscribers, self._unknown_registered)
 
-    def get_registered(self, channel_name="", etype=EType.ANY):
+    def get_registered(self, channels=[], etype=EType.ANY):
         """
         returns a list of registered entities.
 
         :param Optional[str] channel_name: returns filtered entities with corresponding channel name
         :param EType etype: returns filtered entities with corresponding etype
         """
+        if isinstance(channels, str):
+            channels = [channels]
+
         ret = []
-        name_cmp = lambda x: True if not channel_name else x == channel_name
+        channel_cmp = lambda x: True if not channels else x in channels
 
         for obj in self.iter_registered():
-            if name_cmp(obj.channel_name) and obj.etype in etype:
+            if channel_cmp(obj.channel_name) and obj.etype in etype:
                 ret.append(obj)
 
         return ret
@@ -80,7 +83,7 @@ class Hub:
                 return
 
             # Only allow 1 publisher to publish on a given channel
-            same_name_publishers = self.get_registered(channel_name=channel_registrable.channel_name,
+            same_name_publishers = self.get_registered(channels=[channel_registrable.channel_name],
                                                        etype=EType.PUBLISHER)
             if same_name_publishers:
                 raise RegistrationError((f"{channel_registrable.__class__.__name__} with channel_name "
@@ -103,7 +106,7 @@ class Hub:
 
         elif channel_registrable.etype == EType.SUBSCRIBER:
 
-            subscribed_publisher = self.get_registered(channel_name=channel_registrable.channel_name,
+            subscribed_publisher = self.get_registered(channels=[channel_registrable.channel_name],
                                                        etype=EType.PUBLISHER)
 
             if subscribed_publisher:
@@ -176,6 +179,17 @@ class Hub:
                 return True
         return False
 
+    def is_mapped_channel_registrable(self, channel_registrable):
+        """
+        Method returns if a given channel_registrable is mapped to some other channel registrable
+
+        :param ChannelRegistrable channel_registrable: instance to check for registration
+        """
+        for registered in chain(self._publisher_subscriber_map.keys(), *self._publisher_subscriber_map.values()):
+            if registered is channel_registrable:
+                return True
+        return False
+
     def reset(self):
         """
         Method resets the hub's state to default state
@@ -187,12 +201,3 @@ class Hub:
         self._dangling_subscribers.clear()
         self._unknown_registered.clear()
         self.logger.warning(f"{self.__class__.__name__} reset")
-
-    def get_publishers(self):
-        return self.get_registered(etype=EType.PUBLISHER)
-
-    def get_subscribers(self, publisher=None):
-        if publisher is not None:
-            return self._publisher_subscriber_map.get(publisher, set())
-        else:
-            return self.get_registered(etype=EType.SUBSCRIBER)
