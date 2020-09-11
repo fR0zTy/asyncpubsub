@@ -126,8 +126,8 @@ class Hub:
 
     def deregister(self, channel_registrable):
         """
-        Method for de-registration of a given registerable. This will de-register the object
-        and all the communication channels will be terminated
+        Method for de-registration of a given channel registerable. This will de-register
+        the object and all the communication channels will be terminated
 
         :param ChannelRegistrable registrable: instance to be de-registered
         """
