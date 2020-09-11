@@ -6,8 +6,8 @@ from asyncpubsub.core.hub import get_hub
 
 class Subscriber(ChannelRegisterable):
 
-    def __init__(self, name):
-        super().__init__(name, EType.SUBSCRIBER)
+    def __init__(self, channel_name):
+        super().__init__(channel_name, EType.SUBSCRIBER)
         self._hub = get_hub()
         self._hub.register(self)
 
