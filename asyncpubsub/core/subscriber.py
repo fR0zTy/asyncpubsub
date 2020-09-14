@@ -8,11 +8,18 @@ from asyncpubsub.core.hub import get_hub
 
 class Subscriber(ChannelRegistrable):
 
-    def __init__(self, channel_name, queue_size=0):
+    def __init__(self, channel_name, callback, queue_size=0):
         super().__init__(channel_name, EType.SUBSCRIBER)
         self._msg_queue = asyncio.Queue(maxsize=queue_size)
         self._hub = get_hub()
         self._hub.register(self)
+        if not callable(callback):
+            raise TypeError("arg callback must be a callable")
+
+        if asyncio.iscoroutine(callback):
+            raise TypeError("callback cannot be a coroutine, provide a coroutinefunction instead")
+
+        self._callback = callback
 
     @property
     def publisher(self):
