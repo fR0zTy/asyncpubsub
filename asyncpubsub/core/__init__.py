@@ -24,11 +24,11 @@ class ChannelRegistrable:
     """
 
     def __init__(self, channel_name, etype):
-        if not all(c in self._VALID_CHARS for c in channel_name):
-            raise ValueError("arg channel_name contains invalid letters, must be in [A-Za-z0-9]")
-
         if not (channel_name and isinstance(channel_name, str)):
             raise TypeError("arg channel_name must be a valid non-empty string")
+
+        if not all(c in self._VALID_CHARS for c in channel_name):
+            raise ValueError("arg channel_name contains invalid letters, must be in [A-Za-z0-9]")
 
         if not isinstance(etype, EType):
             raise TypeError('arg etype must be of type EType')
