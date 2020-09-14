@@ -34,7 +34,7 @@ class ChannelRegistrable:
         return self._etype
 
     def __str__(self):
-        return f"{self.__class__.__name__}(name={self._channel_name}, etype={self._etype})"
+        return f"{self.__class__.__name__}(name={self._channel_name}, etype={self._etype.name})"
 
     def __repr__(self):
         return self.__str__()
