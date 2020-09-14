@@ -14,6 +14,11 @@ class TestSubscriber(unittest.TestCase):
     def test_default_subscriber_auto_registers(self):
         self.assertTrue(self.hub.is_registered(self.subscriber))
 
+    def test_subscriber_raises_error_for_non_callable_callbacks(self):
+        cb = "callback"
+        with self.assertRaises(TypeError):
+            Subscriber("int-channel", cb)
+
     def test_publisher_property(self):
         self.assertTrue(self.subscriber.publisher is None)
         publisher = Publisher("int-channel")
