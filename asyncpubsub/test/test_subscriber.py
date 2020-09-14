@@ -9,7 +9,7 @@ class TestSubscriber(unittest.TestCase):
 
     def setUp(self):
         self.hub = get_hub()
-        self.subscriber = Subscriber("int-channel")
+        self.subscriber = Subscriber("int-channel", lambda: None)
 
     def test_default_subscriber_auto_registers(self):
         self.assertTrue(self.hub.is_registered(self.subscriber))

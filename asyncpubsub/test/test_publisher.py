@@ -20,17 +20,17 @@ class TestPublisher(unittest.TestCase):
 
     def test_subscribers_property(self):
         self.assertFalse(bool(self.publisher.subscribers))
-        subscriber_1 = Subscriber("int-channel")
+        subscriber_1 = Subscriber("int-channel", lambda: None)
         publisher_subscribers = self.publisher.subscribers
         self.assertTrue(subscriber_1 in publisher_subscribers)
         self.assertTrue(len(publisher_subscribers) == 1)
 
-        subscriber_2 = Subscriber("int-channel")
+        subscriber_2 = Subscriber("int-channel", lambda: None)
         publisher_subscribers = self.publisher.subscribers
         self.assertTrue(subscriber_2 in publisher_subscribers)
         self.assertTrue(len(publisher_subscribers) == 2)
 
-        subscriber_3 = Subscriber('float-channel')
+        subscriber_3 = Subscriber('float-channel', lambda: None)
         publisher_subscribers = self.publisher.subscribers
         self.assertFalse(subscriber_3 in publisher_subscribers)
 
