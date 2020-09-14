@@ -5,12 +5,20 @@ from enum import IntFlag
 
 
 class EType(IntFlag):
+    """
+    Type definitions for package entities
+    """
     PUBLISHER = 1
     SUBSCRIBER = 2
     ANY = PUBLISHER | SUBSCRIBER
 
 
 class ChannelRegistrable:
+
+    """
+    Base class for entities which are performing operations on message channels. Mainly
+    used for Publishers and Subscribers
+    """
 
     def __init__(self, channel_name, etype):
         if not (channel_name and isinstance(channel_name, str)):
