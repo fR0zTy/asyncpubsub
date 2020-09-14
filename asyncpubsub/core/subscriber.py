@@ -31,6 +31,10 @@ class Subscriber(ChannelRegistrable):
                  received from the channel then the oldest message in the queue
                  will be removed without invoking the callback function.
 
+    >>> subscriber = Subscriber("hello-world-channel", lambda msg: print(msg))
+    hello world!
+    hello world!
+    hello world!
     """
 
     def __init__(self, channel_name, callback, queue_size=0):
