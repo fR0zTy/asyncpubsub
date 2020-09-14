@@ -190,6 +190,16 @@ class Hub:
                 return True
         return False
 
+    def subscribers(self, publisher):
+        """
+        Method returns a set of subscribers which have currently subscribed to a given
+        publisher
+
+        :param asyncpubsub.Publisher publisher: publisher instance
+        :rtype: set
+        """
+        return self._publisher_subscriber_map[publisher]
+
     def reset(self):
         """
         Method resets the hub's state to default state
