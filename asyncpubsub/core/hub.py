@@ -1,7 +1,6 @@
 # -*- coding : utf-8 -*-
 
 import logging
-from typing import Set, Dict
 from itertools import chain
 
 from asyncpubsub.core import EType, ChannelRegistrable
@@ -23,30 +22,32 @@ class RegistrationError(Exception):
 class Hub:
 
     """
-    An instance of this class is meant to be the central naming service which provides lookups
-    for publishers and subscribers facilitating communication between them.
-    Please note, The asyncpubsub package assumes that a singleton pattern will be followed for this
-    class.
+    An instance of this class is meant to be the central naming service which
+    provides lookups for publishers and subscribers facilitating communication
+    between them. Please note, The asyncpubsub package assumes that a singleton
+    pattern will be followed for this class.
     """
 
     def __init__(self):
-        self._publisher_subscriber_map: Dict[ChannelRegistrable, Set[ChannelRegistrable]] = {}
-        self._dangling_subscribers: Set[ChannelRegistrable] = set()
-        self._unknown_registered: Set[ChannelRegistrable] = set()
+        self._publisher_subscriber_map = {}
+        self._dangling_subscribers = set()
+        self._unknown_registered = set()
 
     @property
     def logger(self):
         return logging.getLogger('asyncpubsub.hub')
 
     def iter_registered(self):
-        return chain(self._publisher_subscriber_map.keys(), *self._publisher_subscriber_map.values(),
+        return chain(self._publisher_subscriber_map.keys(),
+                     *self._publisher_subscriber_map.values(),
                      self._dangling_subscribers, self._unknown_registered)
 
     def get_registered(self, channels=[], etype=EType.ANY):
         """
         returns a list of registered entities.
 
-        :param Optional[str] channel_name: returns filtered entities with corresponding channel name
+        :param Optional[str] channel_name: returns filtered entities with
+                                           corresponding channel name
         :param EType etype: returns filtered entities with corresponding etype
         """
         if isinstance(channels, str):
@@ -143,8 +144,10 @@ class Hub:
         """
 
         if channel_registrable.etype == EType.PUBLISHER:
-            self._publisher_subscriber_map.pop(channel_registrable, None)
+            subscribers = self._publisher_subscriber_map.pop(channel_registrable, [])
             self.logger.debug(f"removed publisher {channel_registrable}")
+            for subscriber in subscribers:
+                self._dangling_subscribers.add(subscriber)
 
         elif channel_registrable.etype == EType.SUBSCRIBER:
             self._dangling_subscribers.discard(channel_registrable)
@@ -198,7 +201,7 @@ class Hub:
         :param asyncpubsub.Publisher publisher: publisher instance
         :rtype: set
         """
-        return self._publisher_subscriber_map[publisher]
+        return self._publisher_subscriber_map.get(publisher, set())
 
     def reset(self):
         """
