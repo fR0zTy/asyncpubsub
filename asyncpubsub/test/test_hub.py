@@ -23,7 +23,6 @@ class TestHub(unittest.TestCase):
 
     def test_registration(self):
         self.hub.register(self.reg_obj)
-        print(self.hub.get_registered())
         self.assertTrue(self.hub.is_registered(self.reg_obj))
 
     def test_is_registered(self):
@@ -90,6 +89,30 @@ class TestHub(unittest.TestCase):
         self.hub.register(publisher)
         self.assertFalse(subscriber in self.hub._dangling_subscribers)
         self.assertTrue(self.hub.is_mapped_channel_registrable(subscriber))
+
+    def test_subscriber_sets_to_dangling_on_publisher_deregister(self):
+        subscriber = DummySubscriber('int-channel')
+        publisher = DummyPublisher('int-channel')
+        self.hub.register(publisher)
+        self.hub.register(subscriber)
+        self.assertTrue(self.hub.is_mapped_channel_registrable(subscriber))
+        self.assertFalse(subscriber in self.hub._dangling_subscribers)
+        self.hub.deregister(publisher)
+        self.assertFalse(self.hub.is_mapped_channel_registrable(subscriber))
+        self.assertTrue(subscriber in self.hub._dangling_subscribers)
+
+    def test_subscribers_is_remapped_on_publisher_reregister(self):
+        subscriber = DummySubscriber('int-channel')
+        publisher = DummyPublisher('int-channel')
+        self.hub.register(publisher)
+        self.hub.register(subscriber)
+        self.assertTrue(self.hub.is_mapped_channel_registrable(subscriber))
+        self.hub.deregister(publisher)
+        self.assertFalse(self.hub.is_mapped_channel_registrable(subscriber))
+        publisher2 = DummyPublisher('int-channel')
+        self.hub.register(publisher2)
+        self.assertTrue(self.hub.is_mapped_channel_registrable(subscriber))
+        self.assertTrue(subscriber in self.hub.get_subscribers(publisher2))
 
     def tearDown(self):
         self.hub.reset()
