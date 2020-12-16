@@ -144,7 +144,7 @@ class Hub:
         """
 
         if channel_registrable.etype == EType.PUBLISHER:
-            subscribers = self._publisher_subscriber_map.pop(channel_registrable, [])
+            subscribers = self._publisher_subscriber_map.pop(channel_registrable, set())
             self.logger.debug(f"removed publisher {channel_registrable}")
             for subscriber in subscribers:
                 self._dangling_subscribers.add(subscriber)
@@ -152,20 +152,16 @@ class Hub:
         elif channel_registrable.etype == EType.SUBSCRIBER:
             self._dangling_subscribers.discard(channel_registrable)
 
-            found = False
+            associated_publisher = None
 
             for publisher, subscribers in self._publisher_subscriber_map.items():
-                for subscriber in subscribers:
-                    if subscriber is channel_registrable:
-                        found = True
-                        break
-
-                if found:
+                if channel_registrable in subscribers:
+                    associated_publisher = publisher
                     break
 
-            if found:
-                self._publisher_subscriber_map[publisher].remove(subscriber)
-                self.logger.debug(f"removed subscriber for {publisher}")
+            if associated_publisher is not None:
+                self._publisher_subscriber_map[associated_publisher].remove(channel_registrable)
+                self.logger.debug(f"removed subscriber {channel_registrable} for {associated_publisher}")
         else:
             self._unknown_registered.discard(channel_registrable)
 
