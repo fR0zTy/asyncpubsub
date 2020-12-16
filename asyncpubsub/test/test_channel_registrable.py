@@ -10,6 +10,10 @@ class TestChannelRegistrable(unittest.TestCase):
     def setUp(self):
         self.hub = get_hub()
 
+    def test_empty_name_for_channel_name_raises_error(self):
+        with self.assertRaises(TypeError):
+            ChannelRegistrable("", EType.ANY)
+
     def test_channel_registrable_instantiation(self):
         ChannelRegistrable("channel1", EType.ANY)
 
