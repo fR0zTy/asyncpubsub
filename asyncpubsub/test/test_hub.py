@@ -114,5 +114,25 @@ class TestHub(unittest.TestCase):
         self.assertTrue(self.hub.is_mapped_channel_registrable(subscriber))
         self.assertTrue(subscriber in self.hub.get_subscribers(publisher2))
 
+    def test_subscriber_deregistration_with_no_mapped_publisher(self):
+        subscriber = DummySubscriber("int-channel")
+        self.hub.register(subscriber)
+        self.assertTrue(self.hub.is_registered(subscriber))
+        self.assertFalse(self.hub.is_mapped_channel_registrable(subscriber))
+        self.hub.deregister(subscriber)
+        self.assertFalse(self.hub.is_registered(subscriber))
+        self.assertFalse(subscriber in self.hub._dangling_subscribers)
+
+    def test_subscriber_deregistration_with_mapped_publisher(self):
+        subscriber = DummySubscriber("int-channel")
+        publisher = DummyPublisher('int-channel')
+        self.hub.register(publisher)
+        self.hub.register(subscriber)
+        self.assertTrue(self.hub.is_mapped_channel_registrable(subscriber))
+        self.hub.deregister(subscriber)
+        self.assertFalse(self.hub.is_mapped_channel_registrable(subscriber))
+        self.assertFalse(self.hub.is_registered(subscriber))
+        self.assertFalse(subscriber in self.hub._dangling_subscribers)
+
     def tearDown(self):
         self.hub.reset()
