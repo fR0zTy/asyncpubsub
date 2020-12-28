@@ -60,7 +60,7 @@ class Publisher(ChannelRegistrable):
 
     async def publish(self, message):
         """
-        Method for publishing message asynchronously
+        Coroutine for publishing message asynchronously
 
         :param Any message: message to be published over the channel
         """
