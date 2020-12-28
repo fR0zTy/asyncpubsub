@@ -1,5 +1,7 @@
 # -*- coding : utf-8 -*-
 
+import asyncio
+
 from asyncpubsub import Publisher, Subscriber
 
 
@@ -26,12 +28,16 @@ class TrackedSubscriber(Subscriber):
 
     def __init__(self, channel_name, callback, queue_size=0):
         super().__init__(channel_name, callback, queue_size=queue_size)
-        self._subscribed_messages = []
+        self._received_messages = []
 
     @property
-    def subscribed_messages(self):
-        return self._subscribed_messages
+    def received_messages(self):
+        return self._received_messages
 
     def notify(self, msg):
         super().notify(msg)
-        self._subscribed_messages.append(msg)
+        self._received_messages.append(msg)
+
+    async def wait_for_queue_empty(self):
+        while not self._msg_queue.empty():
+            await asyncio.sleep(0.1)
