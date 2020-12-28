@@ -61,7 +61,7 @@ class Subscriber(ChannelRegistrable):
                                       "this happen o_O ?")
         return publishers[0]
 
-    def notify(self, msg):
+    def notify(self, message):
         """
         Method used for updating the subscribers internal message queue.
         For most use cases the user does not need to call this method as the
@@ -73,15 +73,15 @@ class Subscriber(ChannelRegistrable):
         if self._msg_queue.full():
             self._msg_queue.get_nowait()
 
-        self._msg_queue.put_nowait(msg)
+        self._msg_queue.put_nowait(message)
 
     async def _queue_processor(self):
         while True:
-            msg = await self._msg_queue.get()
+            message = await self._msg_queue.get()
             if asyncio.iscoroutinefunction(self._callback):
-                await self._callback(msg)
+                await self._callback(message)
             else:
-                self._callback(msg)
+                self._callback(message)
 
     def __del__(self):
         self._hub.deregister(self)
