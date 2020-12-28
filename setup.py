@@ -18,5 +18,5 @@ setuptools.setup(
         "License :: OSI Approved :: GNU GPL3",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.8',
 )
