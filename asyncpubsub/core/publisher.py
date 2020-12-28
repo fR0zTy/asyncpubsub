@@ -1,8 +1,9 @@
 # -*- coding : utf-8 -*-
 
 import asyncio
+from functools import partial
 
-from asyncpubsub.core import EType, ChannelRegistrable
+from asyncpubsub.core import EType, ChannelRegistrable, task_done_callback
 from asyncpubsub.core.hub import get_hub
 
 
@@ -11,6 +12,7 @@ class Publisher(ChannelRegistrable):
     """
     Publisher class
     Handles publishing messages over channels
+
     :param str channel_name: unique name used for publishing messages
     :param int queue_size: size of internal queue used for buffering messages
 
@@ -28,21 +30,18 @@ class Publisher(ChannelRegistrable):
     """
 
     def __init__(self, channel_name, queue_size=0):
+
+        self.__processor_task = None
+
         super().__init__(channel_name, EType.PUBLISHER)
         self._msg_queue = asyncio.Queue(maxsize=queue_size)
         self._hub = get_hub()
         self._hub.register(self)
 
-        def done_callback(ft):
-            while not self._msg_queue.empty():
-                self._msg_queue.get_nowait()
-            self.logger.debug("_queue_processor_task done!")
-
-            if ft.exception():
-                raise ft.exception()
-
         self.__processor_task = asyncio.ensure_future(self._queue_processor())
-        self.__processor_task.add_done_callback(done_callback)
+        self.__processor_task.add_done_callback(
+                                    partial(task_done_callback,
+                                            channel_name + "-task"))
 
     @property
     def subscribers(self):
@@ -55,6 +54,7 @@ class Publisher(ChannelRegistrable):
         Method for publishing messages synchronously
 
         :param Any message: message to be published over the channel
+        :raises: asyncio.QueueFull
         """
         self._msg_queue.put_nowait(message)
 
@@ -78,4 +78,6 @@ class Publisher(ChannelRegistrable):
                 subscriber.notify(message)
 
     def __del__(self):
+        if self.__processor_task and not self.__processor_task.done():
+            self.__processor_task.cancel()
         self._hub.deregister(self)
