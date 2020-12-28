@@ -1,7 +1,7 @@
 # -*- coding : utf-8 -*-
 
-import string
 import logging
+import string
 from enum import IntFlag
 
 
@@ -57,3 +57,10 @@ class ChannelRegistrable:
 
     def __repr__(self):
         return self.__str__()
+
+
+def task_done_callback(name, ft):
+    if exp := ft.cancelled():
+        logging.warning(f"{name} task cancelled!, {exp}")
+    elif exp := ft.exception():
+        logging.error(f"{name} encountered error {exp}")
