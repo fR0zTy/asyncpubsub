@@ -5,6 +5,11 @@ import asyncio
 from asyncpubsub import Publisher, Subscriber
 
 
+"""
+Supporting utility classes for testing
+"""
+
+
 class TrackedPublisher(Publisher):
 
     def __init__(self, channel_name, queue_size=0):
@@ -29,7 +34,6 @@ class TrackedSubscriber(Subscriber):
     def __init__(self, channel_name, callback, queue_size=0):
         super().__init__(channel_name, callback, queue_size=queue_size)
         self._notified_messages = []
-        self._received_messages = []
 
     @property
     def notified_messages(self):
@@ -42,6 +46,23 @@ class TrackedSubscriber(Subscriber):
     async def wait_for_queue_empty(self):
         while not self._msg_queue.empty():
             await asyncio.sleep(0.1)
+
+
+class TrackedSubscriberWithCallbacks(TrackedSubscriber):
+    def __init__(self, channel_name, queue_size=0, use_sync_cb=False, use_async_cb=False):
+        self._received_messages = []
+        if use_sync_cb:
+            cb = self.sync_callback
+        elif use_async_cb:
+            cb = self.async_callback
+        else:
+            raise ValueError("invalid values for use_sync_cb and use_async_cb")
+
+        super().__init__(channel_name, cb, queue_size=queue_size)
+
+    @property
+    def received_messages(self):
+        return self._received_messages
 
     def sync_callback(self, msg):
         self._received_messages.append(msg)
