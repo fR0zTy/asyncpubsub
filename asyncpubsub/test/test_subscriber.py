@@ -33,7 +33,7 @@ class TestSubscriber(unittest.IsolatedAsyncioTestCase):
             publisher.publish_nowait(msg)
 
         await self.subscriber.wait_for_queue_empty()
-        self.assertTrue(all(i == j for i, j in zip(messages, self.subscriber.received_messages)))
+        self.assertTrue(all(i == j for i, j in zip(messages, self.subscriber.notified_messages)))
 
     async def test_subscriber_message_notify_default(self):
         publisher = Publisher("int-channel")
@@ -42,7 +42,7 @@ class TestSubscriber(unittest.IsolatedAsyncioTestCase):
             await publisher.publish(msg)
 
         await self.subscriber.wait_for_queue_empty()
-        self.assertTrue(all(i == j for i, j in zip(messages, self.subscriber.received_messages)))
+        self.assertTrue(all(i == j for i, j in zip(messages, self.subscriber.notified_messages)))
 
     def tearDown(self):
         self.hub.reset()
