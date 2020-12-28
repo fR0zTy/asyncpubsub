@@ -28,8 +28,9 @@ class ChannelRegistrable:
             raise TypeError("arg channel_name must be a valid non-empty str")
 
         if not all(c in self._VALID_CHARS for c in channel_name):
-            raise ValueError(("arg channel_name contains invalid letters, must"
-                              " be in [A-Za-z0-9]"))
+            raise ValueError(("arg channel_name contains invalid characters, "
+                              "supported characters are ;"
+                              "[A-Z], [a-z], [0-9], ['-', '_', '.']"))
 
         if not isinstance(etype, EType):
             raise TypeError('arg etype must be of type EType')
