@@ -10,7 +10,7 @@ from asyncpubsub.core.hub import get_hub
 class Publisher(ChannelRegistrable):
 
     """
-    Publisher class
+    Publisher class. NOT thread-safe
     Handles publishing messages over channels
 
     :param str channel_name: unique name used for publishing messages

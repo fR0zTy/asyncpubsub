@@ -10,8 +10,8 @@ from asyncpubsub.core.hub import get_hub
 class Subscriber(ChannelRegistrable):
 
     """
-    Subscriber object
-    This object can be used to subscribe to a specific message channel which
+    Subscriber class, NOT thread-safe
+    This class can be used to subscribe to a specific message channel which
     is being published in the process namespace.
 
     :param str channel_name: name of the channel to subscribe
