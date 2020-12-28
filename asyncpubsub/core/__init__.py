@@ -60,7 +60,7 @@ class ChannelRegistrable:
 
 
 def task_done_callback(name, ft):
-    if exp := ft.cancelled():
-        logging.warning(f"{name} task cancelled!, {exp}")
+    if ft.cancelled():
+        logging.warning(f"{name} task cancelled!")
     elif exp := ft.exception():
         logging.error(f"{name} encountered error {exp}")
