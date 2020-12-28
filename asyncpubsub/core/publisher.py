@@ -41,7 +41,7 @@ class Publisher(ChannelRegistrable):
         self.__processor_task = asyncio.ensure_future(self._queue_processor())
         self.__processor_task.add_done_callback(
                                     partial(task_done_callback,
-                                            channel_name + "-task"))
+                                            channel_name + "-publisher-task"))
 
     @property
     def subscribers(self):
