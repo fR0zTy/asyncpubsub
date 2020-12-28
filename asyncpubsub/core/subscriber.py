@@ -1,8 +1,9 @@
 # -*- coding : utf-8 -*-
 
 import asyncio
+from functools import partial
 
-from asyncpubsub.core import EType, ChannelRegistrable
+from asyncpubsub.core import EType, ChannelRegistrable, task_done_callback
 from asyncpubsub.core.hub import get_hub
 
 
@@ -38,6 +39,9 @@ class Subscriber(ChannelRegistrable):
     """
 
     def __init__(self, channel_name, callback, queue_size=0):
+
+        self.__processor_task = None
+
         super().__init__(channel_name, EType.SUBSCRIBER)
         self._msg_queue = asyncio.Queue(maxsize=queue_size)
         self._hub = get_hub()
@@ -50,6 +54,11 @@ class Subscriber(ChannelRegistrable):
                             " coroutinefunction instead"))
 
         self._callback = callback
+
+        self.__processor_task = asyncio.ensure_future(self._queue_processor())
+        self.__processor_task.add_done_callback(
+                                    partial(task_done_callback,
+                                            channel_name + '-subscriber-task'))
 
     @property
     def publisher(self):
@@ -84,4 +93,6 @@ class Subscriber(ChannelRegistrable):
                 self._callback(message)
 
     def __del__(self):
+        if self.__processor_task and not self.__processor_task.done():
+            self.__processor_task.cancel()
         self._hub.deregister(self)
