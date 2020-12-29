@@ -1,7 +1,5 @@
 # -*- coding : utf-8 -*-
 
-import asyncio
-
 from asyncpubsub.core.hub import get_hub, Hub, RegistrationError, ChannelRegistrable, EType
 from asyncpubsub.core.publisher import Publisher
 from asyncpubsub.core.subscriber import Subscriber
@@ -21,18 +19,4 @@ if _SHOW_LOG:
     root.addHandler(handler)
 
 
-def spin(loop=None):
-    if loop is None:
-        loop = asyncio.get_event_loop()
-    try:
-        loop.run_forever()
-    except Exception:
-        tasks = asyncio.all_tasks()
-        for task in tasks:
-            task.cancel()
-        loop.run_until_complete(asyncio.gather(*tasks))
-    finally:
-        loop.close()
-
-
-__all__ = ["RegistrationError", "ChannelRegistrable", "get_hub", "Hub", "spin", "EType", "Publisher", "Subscriber"]
+__all__ = ["RegistrationError", "ChannelRegistrable", "get_hub", "Hub", "EType", "Publisher", "Subscriber"]

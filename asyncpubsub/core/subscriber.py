@@ -15,8 +15,13 @@ class Subscriber(ChannelRegistrable):
     is being published in the process namespace.
 
     :param str channel_name: name of the channel to subscribe
-    :param callable callback: callable object which will be called when
-                              messages on the subscribed channel are received.
+    :param Optional[callable] callback: callable object which will be called
+                                        when messages on the subscribed channel
+                                        are received. If callback is None then
+                                        any new message received on the channel
+                                        will result in a NO-OP. Callbacks can be
+                                        set later with `set_callback` method
+
     :param int queue_size: size of the internal queue which will be used to
                            buffer messages default=0
 
@@ -38,7 +43,7 @@ class Subscriber(ChannelRegistrable):
     hello world!
     """
 
-    def __init__(self, channel_name, callback, queue_size=0):
+    def __init__(self, channel_name, callback=None, queue_size=0):
 
         self.__processor_task = None
 
@@ -46,14 +51,9 @@ class Subscriber(ChannelRegistrable):
         self._msg_queue = asyncio.Queue(maxsize=queue_size)
         self._hub = get_hub()
         self._hub.register(self)
-        if not callable(callback):
-            raise TypeError("arg callback must be a callable")
 
-        if asyncio.iscoroutine(callback):
-            raise TypeError(("callback cannot be a coroutine, provide a"
-                            " coroutinefunction instead"))
-
-        self._callback = callback
+        if callback is not None:
+            self.set_callback(callback)
 
         self.__processor_task = asyncio.ensure_future(self._queue_processor())
         self.__processor_task.add_done_callback(
@@ -69,6 +69,22 @@ class Subscriber(ChannelRegistrable):
         assert len(publishers) == 1, ("This should never happen, how did "
                                       "this happen o_O ?")
         return publishers[0]
+
+    def set_callback(self, callback):
+        """
+        Method for setting callback for the message received over the channel
+
+        :param callable callback: callable which will be invoked when a new
+                                  message is received over the channel
+        """
+        if not callable(callback):
+            raise TypeError("arg callback must be a callable")
+
+        if asyncio.iscoroutine(callback):
+            raise TypeError(("callback cannot be a coroutine, provide a"
+                            " coroutinefunction instead"))
+
+        self._callback = callback
 
     def notify(self, message):
         """
@@ -87,6 +103,10 @@ class Subscriber(ChannelRegistrable):
     async def _queue_processor(self):
         while True:
             message = await self._msg_queue.get()
+
+            if self._callback is None:
+                continue
+
             if asyncio.iscoroutinefunction(self._callback):
                 await self._callback(message)
             else:
